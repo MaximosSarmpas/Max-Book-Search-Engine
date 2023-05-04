@@ -1,3 +1,4 @@
+// Importing the necessary dependencies from React and React-Bootstrap libraries
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -7,27 +8,28 @@ import {
   Card,
   Row
 } from 'react-bootstrap';
-
+// Importing custom utility functions from our API and Local Storage
 import Auth from '../utils/auth';
 import { saveBook, searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 
+// Creating a functional component called "SearchBooks"
 const SearchBooks = () => {
-  // create state for holding returned google api data
+  
+  // Setting initial states for searchedBooks and searchInput using the useState hook from React
   const [searchedBooks, setSearchedBooks] = useState([]);
-  // create state for holding our search field data
+  
   const [searchInput, setSearchInput] = useState('');
 
-  // create state to hold saved bookId values
+ // Setting initial state for savedBookIds by calling getSavedBookIds() from our Local Storage utility function
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
-  // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
-  // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
+  // Using the useEffect hook from React to automatically save the book ids to localStorage whenever savedBookIds state is updated
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
 
-  // create method to search for books and set state on form submit
+  // Creating a function to handle form submission upon user clicking "Submit Search" button
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -58,13 +60,13 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
-  // create function to handle saving a book to our database
+// Creating a function to handle saving a book by bookId when the user clicks "Save this Book!" button
   const handleSaveBook = async (bookId) => {
-    // find the book in `searchedBooks` state by the matching id
+   
+    // Find the book object in searchedBooks state that matches the bookId passed in as parameter and set it to bookToSave
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
 
-    // get token
+    // Check if the user is authenticated by checking for a token in local storage using Auth.loggedIn()
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
@@ -72,19 +74,22 @@ const SearchBooks = () => {
     }
 
     try {
+      
+      // Call saveBook function from our API utility function with bookToSave and token as parameters
       const response = await saveBook(bookToSave, token);
 
       if (!response.ok) {
         throw new Error('something went wrong!');
       }
 
-      // if book successfully saves to user's account, save book id to state
+       // Update savedBookIds state with the new bookId added to it
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
     }
   };
 
+  // Return the following JSX elements as the UI for the SearchBooks component
   return (
     <>
       <div className='text-light bg-dark pt-5'>
