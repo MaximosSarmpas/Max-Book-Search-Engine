@@ -1,4 +1,4 @@
-// See SignupForm.js for comments
+
 
 import React, { useState, useEffect } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
@@ -8,13 +8,18 @@ import { LOGIN_USER } from "../utils/mutations";
 
 import Auth from "../utils/auth";
 
+// Define the LoginForm component
 const LoginForm = () => {
+ 
+  // Define the state for user form data, validation, and alert
   const [userFormData, setUserFormData] = useState({ email: "", password: "" });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  // Define the login mutation
   const [login, { error }] = useMutation(LOGIN_USER);
 
+  // Update showAlert state based on error status
   useEffect(() => {
     if (error) {
       setShowAlert(true);
@@ -23,6 +28,7 @@ const LoginForm = () => {
     }
   }, [error]);
 
+  // Handle input change in the form
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
@@ -48,13 +54,14 @@ const LoginForm = () => {
       console.error(e);
     }
 
-    // clear form values
+    
     setUserFormData({
       email: "",
       password: "",
     });
   };
 
+  // Render the form
   return (
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
