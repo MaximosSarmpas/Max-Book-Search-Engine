@@ -1,3 +1,4 @@
+// Import necessary libraries and components
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -7,32 +8,45 @@ import {
   Col
 } from 'react-bootstrap';
 
+// Import utility functions and Auth
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
+// Define the SavedBooks functional component
 const SavedBooks = () => {
+ 
+  // Set the initial state for userData
   const [userData, setUserData] = useState({});
 
-  // use this to determine if `useEffect()` hook needs to run again
+  // Calculate the length of userData object
   const userDataLength = Object.keys(userData).length;
 
+  // useEffect hook to fetch user data when the component mounts or userDataLength changes
   useEffect(() => {
     const getUserData = async () => {
       try {
+       
+        // Get the user token
         const token = Auth.loggedIn() ? Auth.getToken() : null;
 
+        // If the token is not available, return false
         if (!token) {
           return false;
         }
 
+        // Fetch user data using the token
         const response = await getMe(token);
 
+        // If the response is not ok, throw an error
         if (!response.ok) {
           throw new Error('something went wrong!');
         }
 
+        // Parse the response as JSON
         const user = await response.json();
+       
+         // Update the userData state with the fetched user data
         setUserData(user);
       } catch (err) {
         console.error(err);
@@ -42,7 +56,7 @@ const SavedBooks = () => {
     getUserData();
   }, [userDataLength]);
 
-  // create function that accepts the book's mongo _id value as param and deletes the book from the database
+  // Function to handle deleting a saved book
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -51,26 +65,30 @@ const SavedBooks = () => {
     }
 
     try {
+      
+      // Call the deleteBook function with the bookId and token
       const response = await deleteBook(bookId, token);
 
       if (!response.ok) {
         throw new Error('something went wrong!');
       }
 
+      // Parse the response as JSON
       const updatedUser = await response.json();
       setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
+     
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // if data isn't here yet, say so
+ 
   if (!userDataLength) {
     return <h2>LOADING...</h2>;
   }
 
+  // Render the saved books component
   return (
     <>
       <div fluid className='text-light bg-dark p-5'>
